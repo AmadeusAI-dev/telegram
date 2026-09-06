@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/AmadeusAI-dev/telegram-service/internal/app"
-	"github.com/AmadeusAI-dev/telegram-service/internal/config"
+	"github.com/AmadeusAI-dev/telegram/internal/app"
+	"github.com/AmadeusAI-dev/telegram/internal/config"
 )
 
 func main() {

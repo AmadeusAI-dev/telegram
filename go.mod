@@ -1,4 +1,4 @@
-module github.com/AmadeusAI-dev/telegram-service
+module github.com/AmadeusAI-dev/telegram
 
 go 1.26.3
 

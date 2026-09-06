@@ -3,7 +3,7 @@ package server
 import (
 	"net/http"
 
-	"github.com/AmadeusAI-dev/telegram-service/internal/mcp/tools"
+	"github.com/AmadeusAI-dev/telegram/internal/mcp/tools"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
