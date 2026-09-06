@@ -57,7 +57,7 @@ Enter the confirmation code sent by Telegram when prompted. The session will be 
 Make sure the local infrastructure is running and then start the service:
 
 ```bash
-cd ../telegram-service
+cd ../telegram
 make up
 ```
 

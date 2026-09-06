@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/AmadeusAI-dev/telegram-service/internal/client"
+	"github.com/AmadeusAI-dev/telegram/internal/client"
 	"github.com/TheKiryuKha/pubsub"
 	"github.com/gotd/td/tg"
 )

@@ -16,3 +16,6 @@ lint:
 test:
 	@go vet ./...
 	@go test ./...
+
+build:
+	@go build -o ./bin/ ./cmd/telegram
