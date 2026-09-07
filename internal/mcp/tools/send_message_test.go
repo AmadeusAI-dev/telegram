@@ -120,7 +120,7 @@ func TestReturnsErrorsFromSender(t *testing.T) {
 
 }
 
-func TestInfo(t *testing.T) {
+func TestSendMessageInfo(t *testing.T) {
 	want := &mcp.Tool{
 		Name:        "send_message",
 		Description: "sends message to specific telegram user, based on the username",
@@ -129,6 +129,6 @@ func TestInfo(t *testing.T) {
 	got := SendMessageToolInfo()
 
 	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("mcp tool info mismatch. got: %v, want: %v", got, want)
+		t.Fatalf("send_message tool info mismatch. got: %v, want: %v", got, want)
 	}
 }

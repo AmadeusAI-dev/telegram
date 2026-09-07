@@ -55,7 +55,8 @@ func New(ctx context.Context, cfg config.Config) (*App, error) {
 
 	// === mcp ====
 	sender := &client.Sender{Client: tgClient}
-	server := server.New(sender)
+	repo := client.NewMessageRepo(tgClient.API())
+	server := server.New(sender, repo)
 
 	url := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 
