@@ -106,16 +106,7 @@ func TestReturnsErrorsFromSender(t *testing.T) {
 				"message":  "Hi!",
 			})
 
-			want := &mcp.CallToolResult{
-				Content: []mcp.Content{
-					&mcp.TextContent{
-						Text: test.mcpError.Error(),
-					},
-				},
-				IsError: true,
-			}
-
-			testutil.AssertCallToolResultsMatch(t, got, want)
+			testutil.AssertError(t, got, test.mcpError)
 		})
 	}
 

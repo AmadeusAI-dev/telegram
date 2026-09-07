@@ -12,10 +12,16 @@ import (
 
 type SpyRepo struct {
 	calls int
+	Error error
 }
 
 func (s *SpyRepo) Get(ctx context.Context, username string, limit int) ([]client.Message, error) {
 	s.calls++
+
+	if s.Error != nil {
+		return nil, s.Error
+	}
+
 	return []client.Message{
 		{
 			ID:       100,
@@ -62,6 +68,41 @@ func TestReturnsMessages(t *testing.T) {
 	testutil.AssertCallToolResultsMatch(t, got, want)
 	if repo.calls != 1 {
 		t.Fatalf("want %d repo calls, got %d", 1, repo.calls)
+	}
+}
+
+func TestReturnsCorrectErrors(t *testing.T) {
+	tests := map[string]struct {
+		repoError error
+		mcpError  error
+	}{
+		"ErrResolveUserPeer": {
+			client.ErrResolveUserPeer,
+			UserNotFound,
+		},
+		"ErrGetHistory": {
+			client.ErrGetHistory,
+			InternalServerError,
+		},
+		"ErrUnexpectedHistoryType": {
+			client.ErrUnexpectedHistoryType,
+			InternalServerError,
+		},
+	}
+
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			server, cs := testutil.NewTestMcp(t)
+			repo := &SpyRepo{Error: test.repoError}
+			mcp.AddTool(server, Info(), Handle(repo))
+
+			got := testutil.CallTool(t, cs, "get_messages", map[string]any{
+				"username": "TheKiryuKha",
+				"limit":    10,
+			})
+
+			testutil.AssertError(t, got, test.mcpError)
+		})
 	}
 }
 

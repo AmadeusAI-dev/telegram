@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 
@@ -23,12 +24,18 @@ func NewMessageRepo(client *tg.Client) *MessageRepo {
 	return &MessageRepo{client: client}
 }
 
+var (
+	ErrResolveUserPeer       = errors.New("failed to resolve user peer by username")
+	ErrGetHistory            = errors.New("failed to get chat history")
+	ErrUnexpectedHistoryType = errors.New("failed to get MessagesMessages from MessagesMessagesClass")
+)
+
 func (m *MessageRepo) Get(ctx context.Context, username string, limit int) ([]Message, error) {
 	var msgs []Message
 
 	p, err := peers.Options{}.Build(m.client).Resolve(ctx, username)
 	if err != nil {
-		return nil, fmt.Errorf("failed to resolve user peer by username")
+		return nil, fmt.Errorf("%w:%v", ErrResolveUserPeer, err)
 	}
 
 	history, err := m.client.MessagesGetHistory(ctx, &tg.MessagesGetHistoryRequest{
@@ -36,7 +43,7 @@ func (m *MessageRepo) Get(ctx context.Context, username string, limit int) ([]Me
 		Limit: limit,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w:%v", ErrGetHistory, err)
 	}
 
 	messages, err := extractMessages(history)
@@ -66,7 +73,7 @@ func (m *MessageRepo) Get(ctx context.Context, username string, limit int) ([]Me
 func extractMessages(history tg.MessagesMessagesClass) ([]tg.MessageClass, error) {
 	messages, ok := history.(*tg.MessagesMessagesSlice)
 	if !ok {
-		return nil, fmt.Errorf("failed to get MessagesMessages from MessagesMessagesClass")
+		return nil, ErrUnexpectedHistoryType
 	}
 
 	return messages.Messages, nil

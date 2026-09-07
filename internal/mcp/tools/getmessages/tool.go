@@ -2,6 +2,9 @@ package getmessages
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"log/slog"
 
 	"github.com/AmadeusAI-dev/telegram/internal/client"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -27,6 +30,11 @@ type MessageRepo interface {
 	Get(context.Context, string, int) ([]client.Message, error)
 }
 
+var (
+	UserNotFound        = errors.New("user not found")
+	InternalServerError = errors.New("internal error(LOL)")
+)
+
 func Handle(repo MessageRepo) mcp.ToolHandlerFor[GetMessagesInput, GetMessagesOutput] {
 	return func(ctx context.Context, req *mcp.CallToolRequest, input GetMessagesInput) (
 		*mcp.CallToolResult,
@@ -34,12 +42,18 @@ func Handle(repo MessageRepo) mcp.ToolHandlerFor[GetMessagesInput, GetMessagesOu
 		error,
 	) {
 		messages, err := repo.Get(ctx, input.Username, input.Limit)
-		if err != nil {
-			return nil, GetMessagesOutput{}, err
+
+		switch {
+		case errors.Is(err, client.ErrResolveUserPeer):
+			err = UserNotFound
+
+		case err != nil:
+			slog.Error("failed to get messages", "err", err)
+			err = fmt.Errorf("%w:%v", InternalServerError, err)
 		}
 
 		return nil, GetMessagesOutput{
 			Messages: messages,
-		}, nil
+		}, err
 	}
 }

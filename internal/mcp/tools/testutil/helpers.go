@@ -64,3 +64,16 @@ func AssertCallToolResultsMatch(t testing.TB, got, want *mcp.CallToolResult) {
 		t.Errorf("tools/call mismatch (-want +got):\n%s", diff)
 	}
 }
+
+func AssertError(t testing.TB, got *mcp.CallToolResult, want error) {
+	t.Helper()
+
+	errorResponse := &mcp.CallToolResult{
+		Content: []mcp.Content{
+			&mcp.TextContent{Text: want.Error()},
+		},
+		IsError: true,
+	}
+
+	AssertCallToolResultsMatch(t, got, errorResponse)
+}
