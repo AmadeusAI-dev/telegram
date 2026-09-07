@@ -1,4 +1,4 @@
-package tools
+package getmessages
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/AmadeusAI-dev/telegram/internal/client"
+	"github.com/AmadeusAI-dev/telegram/internal/mcp/tools/testutil"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -30,9 +31,9 @@ func (s *SpyRepo) Get(ctx context.Context, username string, limit int) ([]client
 }
 
 func TestReturnsMessages(t *testing.T) {
-	server, cs := NewTestMcp(t)
+	server, cs := testutil.NewTestMcp(t)
 	repo := &SpyRepo{}
-	mcp.AddTool(server, GetMessagesToolInfo(), GetMessagesTool(repo))
+	mcp.AddTool(server, Info(), Handle(repo))
 	want := &mcp.CallToolResult{
 		Content: []mcp.Content{
 			&mcp.TextContent{Text: `{"Messages":[{"ID":100,"Outgoing":false,"Text":"Hi"},{"ID":200,"Outgoing":true,"Text":"Hello, World!"}]}`},
@@ -53,12 +54,12 @@ func TestReturnsMessages(t *testing.T) {
 		},
 	}
 
-	got := callTool(t, cs, "get_messages", map[string]any{
+	got := testutil.CallTool(t, cs, "get_messages", map[string]any{
 		"username": "mr_TheKiryuKha",
 		"limit":    2,
 	})
 
-	assertCallToolResultsMatch(t, got, want)
+	testutil.AssertCallToolResultsMatch(t, got, want)
 	if repo.calls != 1 {
 		t.Fatalf("want %d repo calls, got %d", 1, repo.calls)
 	}
@@ -70,7 +71,7 @@ func TestGetMessagesInfo(t *testing.T) {
 		Description: "retrieves messages from telegram chat, based on the provided username and limit of messages",
 	}
 
-	got := GetMessagesToolInfo()
+	got := Info()
 
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("get_messages tool info mismatch. got: %v, want: %v", got, want)

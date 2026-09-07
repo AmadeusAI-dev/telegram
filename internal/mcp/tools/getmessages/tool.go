@@ -1,4 +1,4 @@
-package tools
+package getmessages
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-func GetMessagesToolInfo() *mcp.Tool {
+func Info() *mcp.Tool {
 	return &mcp.Tool{
 		Name:        "get_messages",
 		Description: "retrieves messages from telegram chat, based on the provided username and limit of messages",
@@ -27,7 +27,7 @@ type MessageRepo interface {
 	Get(context.Context, string, int) ([]client.Message, error)
 }
 
-func GetMessagesTool(repo MessageRepo) mcp.ToolHandlerFor[GetMessagesInput, GetMessagesOutput] {
+func Handle(repo MessageRepo) mcp.ToolHandlerFor[GetMessagesInput, GetMessagesOutput] {
 	return func(ctx context.Context, req *mcp.CallToolRequest, input GetMessagesInput) (
 		*mcp.CallToolResult,
 		GetMessagesOutput,

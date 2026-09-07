@@ -1,4 +1,4 @@
-package tools
+package sendmessage
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/AmadeusAI-dev/telegram/internal/mcp/tools/testutil"
 	"github.com/gotd/td/tgerr"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -40,12 +41,12 @@ func (e *ErrorSender) Send(ctx context.Context, username string, message string)
 }
 
 func TestSendsMessage(t *testing.T) {
-	server, cs := NewTestMcp(t)
+	server, cs := testutil.NewTestMcp(t)
 	sender := &SpySender{}
 
-	mcp.AddTool(server, SendMessageToolInfo(), SendMessageTool(sender))
+	mcp.AddTool(server, Info(), Handle(sender))
 
-	got := callTool(t, cs, "send_message", map[string]any{
+	got := testutil.CallTool(t, cs, "send_message", map[string]any{
 		"username": "TheKiryuKha",
 		"message":  "Hello, World!",
 	})
@@ -57,7 +58,7 @@ func TestSendsMessage(t *testing.T) {
 		StructuredContent: map[string]any{"result": "message sent successfully"},
 	}
 
-	assertCallToolResultsMatch(t, got, want)
+	testutil.AssertCallToolResultsMatch(t, got, want)
 
 	if sender.calls != 1 {
 		t.Fatalf("expected sender to be called %d, got %d", 1, sender.calls)
@@ -95,12 +96,12 @@ func TestReturnsErrorsFromSender(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			server, cs := NewTestMcp(t)
+			server, cs := testutil.NewTestMcp(t)
 			sender := &ErrorSender{test.senderError}
 
-			mcp.AddTool(server, SendMessageToolInfo(), SendMessageTool(sender))
+			mcp.AddTool(server, Info(), Handle(sender))
 
-			got := callTool(t, cs, "send_message", map[string]any{
+			got := testutil.CallTool(t, cs, "send_message", map[string]any{
 				"username": "TheKiryuKha",
 				"message":  "Hi!",
 			})
@@ -114,7 +115,7 @@ func TestReturnsErrorsFromSender(t *testing.T) {
 				IsError: true,
 			}
 
-			assertCallToolResultsMatch(t, got, want)
+			testutil.AssertCallToolResultsMatch(t, got, want)
 		})
 	}
 
@@ -126,7 +127,7 @@ func TestSendMessageInfo(t *testing.T) {
 		Description: "sends message to specific telegram user, based on the username",
 	}
 
-	got := SendMessageToolInfo()
+	got := Info()
 
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("send_message tool info mismatch. got: %v, want: %v", got, want)
