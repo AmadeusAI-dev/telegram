@@ -1,4 +1,4 @@
-package tools
+package sendmessage
 
 import (
 	"context"
@@ -28,14 +28,14 @@ type Output struct {
 	Result string `json:"result" jsonschema:"result message"`
 }
 
-func SendMessageToolInfo() *mcp.Tool {
+func Info() *mcp.Tool {
 	return &mcp.Tool{
 		Name:        "send_message",
 		Description: "sends message to specific telegram user, based on the username",
 	}
 }
 
-func SendMessageTool(sender Sender) mcp.ToolHandlerFor[Input, Output] {
+func Handle(sender Sender) mcp.ToolHandlerFor[Input, Output] {
 	return func(ctx context.Context, req *mcp.CallToolRequest, input Input) (
 		*mcp.CallToolResult,
 		Output,

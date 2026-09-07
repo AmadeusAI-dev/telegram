@@ -1,4 +1,4 @@
-package tools
+package testutil
 
 import (
 	"context"
@@ -40,7 +40,7 @@ func NewTestMcp(t testing.TB) (*mcp.Server, *mcp.ClientSession) {
 	return server, clientSession
 }
 
-func callTool(t testing.TB, cs *mcp.ClientSession, toolName string, args map[string]any) *mcp.CallToolResult {
+func CallTool(t testing.TB, cs *mcp.ClientSession, toolName string, args map[string]any) *mcp.CallToolResult {
 	t.Helper()
 
 	ctx := context.Background()
@@ -57,10 +57,23 @@ func callTool(t testing.TB, cs *mcp.ClientSession, toolName string, args map[str
 	return got
 }
 
-func assertCallToolResultsMatch(t testing.TB, got, want *mcp.CallToolResult) {
+func AssertCallToolResultsMatch(t testing.TB, got, want *mcp.CallToolResult) {
 	t.Helper()
 
 	if diff := cmp.Diff(want, got, ctrCmpOpts...); diff != "" {
 		t.Errorf("tools/call mismatch (-want +got):\n%s", diff)
 	}
+}
+
+func AssertError(t testing.TB, got *mcp.CallToolResult, want error) {
+	t.Helper()
+
+	errorResponse := &mcp.CallToolResult{
+		Content: []mcp.Content{
+			&mcp.TextContent{Text: want.Error()},
+		},
+		IsError: true,
+	}
+
+	AssertCallToolResultsMatch(t, got, errorResponse)
 }
